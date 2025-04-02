@@ -1,72 +1,159 @@
 # 🏢 CondLink - Sistema de Ouvidoria para Condomínios
 
-![CondLink Screenshot](https://via.placeholder.com/800x400?text=CondLink+Screenshots) <!-- Substitua com imagens reais -->
+![Banner do App](https://via.placeholder.com/800x400?text=Screenshot+1+%7C+Screenshot+2+%7C+Screenshot+3)
 
 ## 📌 Visão Geral
-CondLink é um aplicativo móvel que facilita a gestão de reclamações e solicitações em condomínios. Ele conecta moradores e administradores através de um sistema de tickets organizado, promovendo uma comunicação mais eficiente e transparente.
+Aplicativo móvel que facilita a comunicação entre moradores e administradores de condomínios, permitindo:
+- 📝 Registro de reclamações com fotos
+- 🔍 Acompanhamento em tempo real
+- 📊 Geração de relatórios automáticos
+- 🔔 Notificações push importantes
 
-## ✨ Funcionalidades Principais
-| **Usuário**  | **Recursos**                                                                 |
-|--------------|-----------------------------------------------------------------------------|
-| **Moradores** | - Envio de reclamações com fotos<br>- Acompanhamento de status<br>- Histórico de solicitações |
-| **Síndicos**  | - Dashboard de tickets<br>- Filtros por categoria/status<br>- Geração de relatórios periódicos |
-| **Geral**     | - Notificações em tempo real<br>- Login seguro<br>- Dados sincronizados na nuvem |
+## ⚙️ Pré-requisitos
+| Item              | Versão Recomendada | Link de Download                     |
+|-------------------|--------------------|---------------------------------------|
+| Node.js           | 18+ LTS            | [nodejs.org](https://nodejs.org/)     |
+| npm               | 9+                 | (vem com Node.js)                     |
+| Expo CLI          | Última estável     | `npm install -g expo-cli`             |
+| Git               | 2.40+              | [git-scm.com](https://git-scm.com/)   |
+| Expo Go (mobile)  | Última versão      | [expo.dev/client](https://expo.dev/client) |
 
-## 🛠 Tecnologias Utilizadas
-- **Frontend**: React Native + Expo
-- **Navegação**: React Navigation 7.x
-- **Backend**: Firebase (Autenticação, Firestore)
-- **UI**: Componentes nativos + React Native Paper
+## 🚀 Instalação Passo a Passo
 
-## 🚀 Como Executar
+### 1. Clonar o repositório
 ```bash
-# 1. Clone o repositório
 git clone https://github.com/seu-usuario/CondLink.git
-
-# 2. Acesse o diretório do projeto
 cd CondLink
-
-# 3. Instale as dependências
+```
+### 2. Instalar dependências
+```bash
 npm install
-
-# 4. Inicie o projeto
+```
+### 3. Configurar ambiente (opcional)
+Crie um arquivo `.env` na raiz:
+```
+# Exemplo para Firebase
+API_KEY=SUA_CHAVE_AQUI
+AUTH_DOMAIN=seu-projeto.firebaseapp.com
+PROJECT_ID=seu-projeto
+```
+### 4. Iniciar o projeto
+```bash
 npx expo start
 ```
 
-## 📱 Fluxo de Telas
+## 🌐 Como Executar em Diferentes Plataformas
+
+### ▶️ Dispositivo Físico
+1. Abra o app Expo Go no celular
+2. Escaneie o QR code exibido no terminal
+3. Aguarde o carregamento (pode demorar alguns minutos na primeira execução)
+
+### 💻 Navegador Web
+```bash
+npx expo start --web
 ```
-Login → Menu Principal → Nova Reclamação
-                      → Histórico
-                      → Configurações
+Acesse: `http://localhost:19006`
+
+### 🤖 Emulador Android
+```bash
+npx expo start --android
+```
+**Requisitos:**
+- Android Studio instalado
+- Dispositivo virtual configurado
+
+### 🍎 Emulador iOS (somente macOS)
+```bash
+npx expo start --ios
+```
+**Requisitos:**
+- Xcode instalado
+- Simulador configurado
+
+## 🛠️ Estrutura do Projeto
+```
+CondLink/
+├── .expo/                 # Configurações internas do Expo
+├── assets/                # Recursos estáticos
+│   ├── fonts/             # Fontes customizadas
+│   ├── images/            # Imagens do app
+│   └── icons/             # Ícones vetoriais
+├── src/
+│   ├── components/        # Componentes reutilizáveis
+│   ├── constants/         # Configurações globais
+│   ├── navigation/        # Sistema de navegação
+│   ├── screens/           # Telas do aplicativo
+│   ├── services/          # Integrações externas
+│   └── utils/             # Utilitários
+├── App.js                 # Componente raiz
+├── app.json               # Configuração do Expo
+├── babel.config.js        # Configuração do Babel
+└── package.json           # Dependências do projeto
 ```
 
-## 📊 Estrutura do Projeto
+## 🔧 Solução de Problemas Comuns
+
+### 🐞 Erros frequentes e soluções:
+#### "Module not found"
+```bash
+rm -rf node_modules package-lock.json
+npm install
 ```
-src/
-├── screens/       # Telas do app
-├── navigation/    # Configuração de rotas
-├── components/    # Componentes reutilizáveis
-├── services/      # Conexão com Firebase
-└── utils/         # Funções auxiliares
+#### Tela branca no navegador
+```bash
+npx expo start --clear
+```
+#### Problemas com Firebase
+Verifique se:
+- O arquivo `.env` existe
+- As permissões do Firebase estão corretas
+- O SHA-1 está configurado no Console do Firebase
+
+#### Erros de estilo
+```bash
+npx expo install react-native-web react-dom
 ```
 
-## 🤝 Como Contribuir
-1. Faça um fork do projeto
-2. Crie uma branch: `git checkout -b feature/nova-funcionalidade`
-3. Commit suas mudanças: `git commit -m 'Adiciona X feature'`
-4. Push para a branch: `git push origin feature/nova-funcionalidade`
-5. Abra um Pull Request
+## 🤝 Guia de Contribuição
+
+### 📢 Reporte bugs
+Abra uma issue descrevendo:
+- Passos para reproduzir
+- Comportamento esperado vs atual
+- Screenshots (se aplicável)
+
+### 🚀 Sugira melhorias
+Descreva:
+- O problema que a feature resolve
+- Proposta de solução
+- Alternativas consideradas
+
+### 📥 Envie um PR
+Fluxo recomendado:
+```bash
+git checkout -b minha-feature
+git add .
+git commit -m "feat: Descrição concisa"
+git push origin minha-feature
+```
 
 ## 📄 Licença
-Este projeto está sob licença MIT - veja o arquivo `LICENSE.md` para detalhes.
+MIT License - Veja o arquivo `LICENSE.md` para detalhes.
 
----
+## ✨ Roadmap 2025
+| Status | Feature             | Descrição                          |
+|--------|--------------------|----------------------------------|
+| ✅      | Autenticação        | Login com e-mail/senha         |
+| ⏳      | Notificações Push   | Alertas para novos tickets     |
+| 🚀      | Relatórios PDF      | Exportação mensal de ocorrências |
+| ✨      | Chat Integrado      | Comunicação direta morador-síndico |
 
-## ✨ Melhorias Futuras (Roadmap)
-- Integração com WhatsApp para alertas
-- Suporte a múltiplos condomínios
-- Exportação de relatórios em PDF
-- Melhorias na interface do usuário
+## 📬 Contato
+**Equipe de Desenvolvimento**
+- **Email:** dev@condlink.app
+- **Site:** [condlink.app](https://condlink.app)
+- **Relatar bugs:** Issues do GitHub
 
-Caso tenha sugestões ou dúvidas, entre em contato! 😊
+📌 **Nota:** Este projeto está em constante evolução. Consulte o `CHANGELOG.md` para acompanhar as últimas atualizações.
 
