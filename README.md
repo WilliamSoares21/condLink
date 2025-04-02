@@ -61,15 +61,6 @@ src/
 Este projeto está sob licença MIT - veja o arquivo `LICENSE.md` para detalhes.
 
 ---
-Desenvolvido por [Seu Nome] © 2023
-
-## 🔍 Dicas para Personalizar:
-- Substitua `[Seu Nome]` pelos nomes reais da equipe
-- Adicione screenshots reais (remova o placeholder)
-- Inclua links para:
-  - Documentação técnica
-  - Protótipos no Figma
-  - Backlog do projeto
 
 ## ✨ Melhorias Futuras (Roadmap)
 - Integração com WhatsApp para alertas
