@@ -1,51 +1,96 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Text, Card, List, Chip, ToggleButton, DataTable } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import theme from '../../theme';  // Caminho igual para todas as telas
+
 
 export default function AdminScreen() {
-  const [complaints, setComplaints] = useState([
-    { id: '1', text: 'Vazamento no corredor', status: 'Pendente', date: '10/05/2023' },
-    { id: '2', text: 'Lâmpada queimada', status: 'Resolvido', date: '08/05/2023' },
-    { id: '3', text: 'Barulho excessivo', status: 'Pendente', date: '12/05/2023' }
+  const [filter, setFilter] = useState('all');
+  const [complaints] = useState([
+    { id: '1', text: 'Vazamento no corredor', status: 'Pendente', date: '10/05 14:30', unit: 'Apto 302' },
+    { id: '2', text: 'Lâmpada queimada', status: 'Resolvido', date: '08/05 09:15', unit: 'Apto 105' },
+    { id: '3', text: 'Barulho excessivo', status: 'Pendente', date: '12/05 22:45', unit: 'Apto 410' }
   ]);
 
-  const handleResolve = (id) => {
-    setComplaints(complaints.map(item =>
-      item.id === id ? { ...item, status: 'Resolvido' } : item
-    ));
-  };
+  const filteredComplaints = complaints.filter(item =>
+    filter === 'all' || item.status === filter
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Reclamações Recentes</Text>
+      <Card style={styles.statsCard}>
+        <Card.Content>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text variant="labelSmall">Total</Text>
+              <Text variant="headlineMedium" style={styles.statValue}>
+                {complaints.length}
+              </Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text variant="labelSmall">Pendentes</Text>
+              <Text variant="headlineMedium" style={[styles.statValue, styles.pending]}>
+                {complaints.filter(c => c.status === 'Pendente').length}
+              </Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text variant="labelSmall">Resolvidos</Text>
+              <Text variant="headlineMedium" style={[styles.statValue, styles.resolved]}>
+                {complaints.filter(c => c.status === 'Resolvido').length}
+              </Text>
+            </View>
+          </View>
+        </Card.Content>
+      </Card>
 
-      <FlatList
-        data={complaints}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.complaintItem}>
-            <Text style={styles.date}>{item.date}</Text>
-            <Text>{item.text}</Text>
-            <View style={styles.statusContainer}>
-              <Text
+      <ToggleButton.Row
+        value={filter}
+        onValueChange={value => setFilter(value)}
+        style={styles.filterGroup}
+      >
+        <ToggleButton
+          icon="format-list-bulleted"
+          value="all"
+          style={styles.filterButton}
+        />
+        <ToggleButton
+          icon="alert"
+          value="Pendente"
+          style={styles.filterButton}
+        />
+        <ToggleButton
+          icon="check"
+          value="Resolvido"
+          style={styles.filterButton}
+        />
+      </ToggleButton.Row>
+
+      <DataTable style={styles.table}>
+        <DataTable.Header>
+          <DataTable.Title>Unidade</DataTable.Title>
+          <DataTable.Title>Descrição</DataTable.Title>
+          <DataTable.Title numeric>Status</DataTable.Title>
+        </DataTable.Header>
+
+        {filteredComplaints.map(item => (
+          <DataTable.Row key={item.id}>
+            <DataTable.Cell>{item.unit}</DataTable.Cell>
+            <DataTable.Cell>{item.text}</DataTable.Cell>
+            <DataTable.Cell numeric>
+              <Chip
+                mode="outlined"
                 style={[
-                  styles.status,
-                  item.status === 'Pendente' ? styles.pending : styles.resolved
+                  styles.chip,
+                  item.status === 'Pendente' ? styles.chipPending : styles.chipResolved
                 ]}
               >
                 {item.status}
-              </Text>
-              {item.status === 'Pendente' && (
-                <TouchableOpacity
-                  style={styles.resolveButton}
-                  onPress={() => handleResolve(item.id)}
-                >
-                  <Text style={styles.buttonText}>Marcar como Resolvido</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        )}
-      />
+              </Chip>
+            </DataTable.Cell>
+          </DataTable.Row>
+        ))}
+      </DataTable>
     </View>
   );
 }
@@ -53,45 +98,51 @@ export default function AdminScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  complaintItem: {
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    backgroundColor: '#f5f5f5',
   },
-  date: {
-    color: '#666',
-    fontSize: 12,
-    marginBottom: 5,
+  statsCard: {
+    marginBottom: 15,
+    borderRadius: 10,
   },
-  statusContainer: {
+  statsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
+    justifyContent: 'space-between',
   },
-  status: {
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    color: theme.colors.primary,
     fontWeight: 'bold',
-    marginRight: 10,
   },
   pending: {
-    color: '#FF5722',
+    color: theme.colors.secondary,
   },
   resolved: {
     color: '#4CAF50',
   },
-  resolveButton: {
-    backgroundColor: '#4CAF50',
-    padding: 5,
-    borderRadius: 4,
+  filterGroup: {
+    marginVertical: 10,
+    justifyContent: 'center',
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 12,
-  }
+  filterButton: {
+    borderWidth: 0,
+  },
+  table: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    elevation: 1,
+  },
+  chip: {
+    margin: 2,
+  },
+  chipPending: {
+    backgroundColor: '#FFF3E0',
+    borderColor: theme.colors.secondary,
+  },
+  chipResolved: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#4CAF50',
+  },
 });
