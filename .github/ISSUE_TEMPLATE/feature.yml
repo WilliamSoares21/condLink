@@ -1,0 +1,67 @@
+name: Tarefa Padrão
+description: Template para features, correções e melhorias
+title: "[FEAT/FIX] Resumo da Tarefa"
+labels: [""]
+assignees: [""]
+
+body:
+  - type: markdown
+    attributes:
+      value: "## 🚀 Template de Tarefa"
+      
+  - type: input
+    id: descricao
+    attributes:
+      label: Descrição
+      description: Contexto claro do que será feito
+      placeholder: "Ex: Implementar sistema de upload de fotos para reclamações"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: criterios-aceitacao
+    attributes:
+      label: Critérios de Aceitação
+      description: Checklist do que deve ser entregue
+      options:
+        - label: Item obrigatório 1
+          required: true
+        - label: Item obrigatório 2
+
+  - type: dropdown
+    id: tecnologias
+    attributes:
+      label: Tecnologias Envolvidas
+      description: Selecione as tecnologias usadas
+      multiple: true
+      options:
+        - React Native
+        - Firebase
+        - Expo
+        - React Navigation
+        - Outra
+
+  - type: textarea
+    id: progresso
+    attributes:
+      label: Progresso Atual
+      description: Descreva o que já foi feito (mesmo que parcial)
+      placeholder: |
+        - [x] Configuração inicial
+        - [ ] Integração com backend
+
+  - type: textarea
+    id: commits
+    attributes:
+      label: Commits Relacionados
+      description: Cole aqui os hashes relevantes (git log --oneline)
+      render: shell
+
+  - type: checkboxes
+    id: blocos
+    attributes:
+      label: Bloqueadores/Dúvidas
+      options:
+        - label: Necessito ajuda técnica
+        - label: Requer discussão com a equipe
+        - label: Depende de outra tarefa
