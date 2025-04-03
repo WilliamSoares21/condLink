@@ -1,0 +1,52 @@
+labels:
+  - name: "🔥 alta prioridade"
+    color: B60205
+    description: "Tarefas críticas para o MVP"
+    
+  - name: "🚀 média prioridade"
+    color: FBCA04
+    description: "Importante, mas não urgente"
+    
+  - name: "🌱 baixa prioridade"
+    color: 0E8A16
+    description: "Melhorias ou features opcionais"
+    
+  - name: "🐛 bug"
+    color: D93F0B
+    description: "Problemas a serem corrigidos"
+    
+  - name: "📚 documentação"
+    color: 006B75
+    description: "Tarefas relacionadas a documentação"
+    
+  - name: "🔐 auth"
+    color: 5319E7
+    description: "Autenticação de usuários"
+    
+  - name: "📊 firestore"
+    color: FF7619
+    description: "Integração com banco de dados"
+    
+  - name: "📱 ui/ux"
+    color: BFDADC
+    description: "Interface e experiência do usuário"
+    
+  - name: "🔔 notificações"
+    color: FEF2C0
+    description: "Sistema de push notifications"
+    
+  - name: "🔄 em progresso"
+    color: FDD835
+    description: "Tarefa em desenvolvimento"
+    
+  - name: "✅ concluído"
+    color: 1D76DB
+    description: "Tarefa finalizada e testada"
+    
+  - name: "🆘 help wanted"
+    color: D4C5F9
+    description: "Precisa de ajuda da equipe"
+    
+  - name: "💡 melhoria"
+    color: 84B6EB
+    description: "Sugestões de otimização"
