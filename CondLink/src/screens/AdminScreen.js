@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../supabase';
 import { View, StyleSheet } from 'react-native';
-import { Text, Card, List, Chip, ToggleButton, DataTable } from 'react-native-paper';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import theme from '../../theme';  // Caminho igual para todas as telas
-
+import { Text, Card, DataTable, Chip, ToggleButton } from 'react-native-paper';
+import theme from '../../theme';
 
 export default function AdminScreen() {
   const [filter, setFilter] = useState('all');
-  const [complaints] = useState([
-    { id: '1', text: 'Vazamento no corredor', status: 'Pendente', date: '10/05 14:30', unit: 'Apto 302' },
-    { id: '2', text: 'Lâmpada queimada', status: 'Resolvido', date: '08/05 09:15', unit: 'Apto 105' },
-    { id: '3', text: 'Barulho excessivo', status: 'Pendente', date: '12/05 22:45', unit: 'Apto 410' }
-  ]);
+  const [complaints, setComplaints] = useState([]);
+
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      const { data, error } = await supabase
+        .from('complaints')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (error) {
+        console.error('Erro ao buscar reclamações:', error.message);
+      } else {
+        setComplaints(data);
+      }
+    };
+
+    fetchComplaints();
+  }, []);
 
   const filteredComplaints = complaints.filter(item =>
     filter === 'all' || item.status === filter
@@ -75,7 +87,7 @@ export default function AdminScreen() {
 
         {filteredComplaints.map(item => (
           <DataTable.Row key={item.id}>
-            <DataTable.Cell>{item.unit}</DataTable.Cell>
+            <DataTable.Cell>{item.unit || 'N/A'}</DataTable.Cell>
             <DataTable.Cell>{item.text}</DataTable.Cell>
             <DataTable.Cell numeric>
               <Chip

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { supabase } from '../../supabase';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Switch, Text, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import theme from '../../theme'; // Importe o tema aqui
+import theme from '../../theme';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -10,8 +11,17 @@ export default function LoginScreen({ navigation }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [secureText, setSecureText] = useState(true);
 
-  const handleLogin = () => {
-    navigation.navigate(isAdmin ? 'Admin' : 'Tenant');
+  const handleLogin = async () => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error('Erro ao fazer login:', error.message);
+    } else {
+      navigation.navigate(isAdmin ? 'Admin' : 'Tenant');
+    }
   };
 
   return (
@@ -75,7 +85,6 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-// Estilos locais (sem referência ao tema)
 const styles = StyleSheet.create({
   container: {
     flex: 1,

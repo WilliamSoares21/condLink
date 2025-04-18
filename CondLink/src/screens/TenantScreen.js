@@ -1,26 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../supabase';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Card, List, Text, FAB } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import theme from '../../theme';  // Caminho igual para todas as telas
-
+import theme from '../../theme';
 
 export default function TenantScreen() {
   const [complaint, setComplaint] = useState('');
-  const [complaints, setComplaints] = useState([
-    { id: '1', text: 'Vazamento no corredor', status: 'Pendente', date: 'Hoje, 14:30' },
-    { id: '2', text: 'Lâmpada queimada', status: 'Resolvido', date: 'Ontem, 09:15' }
-  ]);
+  const [complaints, setComplaints] = useState([]);
 
-  const handleSubmit = () => {
+  // Buscar reclamações ao carregar a tela
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      const { data, error } = await supabase
+        .from('complaints')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (error) {
+        console.error('Erro ao buscar reclamações:', error.message);
+      } else {
+        setComplaints(data);
+      }
+    };
+
+    fetchComplaints();
+  }, []);
+
+  const handleSubmit = async () => {
     if (complaint.trim()) {
-      setComplaints([{
-        id: Date.now().toString(),
-        text: complaint,
-        status: 'Pendente',
-        date: 'Agora'
-      }, ...complaints]);
-      setComplaint('');
+      const { data, error } = await supabase
+        .from('complaints')
+        .insert([{ text: complaint, status: 'Pendente', date: new Date().toISOString() }]);
+
+      if (error) {
+        console.error('Erro ao salvar reclamação:', error.message);
+      } else {
+        setComplaints([{ id: data[0].id, ...data[0] }, ...complaints]);
+        setComplaint('');
+      }
     }
   };
 
@@ -59,7 +77,7 @@ export default function TenantScreen() {
           <List.Item
             key={item.id}
             title={item.text}
-            description={item.date}
+            description={new Date(item.date).toLocaleString()}
             left={props => (
               <List.Icon
                 {...props}
@@ -83,7 +101,23 @@ export default function TenantScreen() {
       <FAB
         icon="refresh"
         style={styles.fab}
-        onPress={() => console.log('Atualizar')}
+        onPress={() => {
+          // Atualizar lista de reclamações
+          const fetchComplaints = async () => {
+            const { data, error } = await supabase
+              .from('complaints')
+              .select('*')
+              .order('date', { ascending: false });
+
+            if (error) {
+              console.error('Erro ao atualizar reclamações:', error.message);
+            } else {
+              setComplaints(data);
+            }
+          };
+
+          fetchComplaints();
+        }}
       />
     </View>
   );
