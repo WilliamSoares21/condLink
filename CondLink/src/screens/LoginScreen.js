@@ -1,17 +1,39 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Switch, Text, Card } from 'react-native-paper';
+import { View, StyleSheet, Alert } from 'react-native';
+import { TextInput, Button, Text, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import theme from '../../theme'; // Importe o tema aqui
+import { auth } from '../services/firebaseConfig.js';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { ref, get } from 'firebase/database';
+import { db } from '../services/firebaseConfig.js';
+import theme from '../../theme';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [secureText, setSecureText] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    navigation.navigate(isAdmin ? 'Admin' : 'Tenant');
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Verificar se é admin
+      const userRef = ref(db, `users/${userCredential.user.uid}`);
+      const snapshot = await get(userRef);
+      
+      if (snapshot.exists()) {
+        navigation.navigate(snapshot.val().isAdmin ? 'Admin' : 'Tenant');
+      } else {
+        Alert.alert('Erro', 'Usuário não cadastrado');
+        await auth.signOut();
+      }
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,32 +70,31 @@ export default function LoginScreen({ navigation }) {
             theme={{ colors: { primary: theme.colors.primary } }}
           />
 
-          <View style={styles.switchContainer}>
-            <Text variant="bodyMedium" style={{ color: theme.colors.text }}>
-              {isAdmin ? 'Modo Administrador' : 'Modo Morador'}
-            </Text>
-            <Switch
-              value={isAdmin}
-              onValueChange={() => setIsAdmin(!isAdmin)}
-              color={theme.colors.primary}
-            />
-          </View>
-
           <Button
             mode="contained"
             onPress={handleLogin}
             style={styles.button}
             icon="login"
+            loading={loading}
+            disabled={loading}
             buttonColor={theme.colors.primary}
-            textColor="white"
-          >
+            textColor="white">
             Entrar
+          </Button>
+          
+          <Button
+            onPress={() => navigation.navigate('SignUp')}
+            mode="text"
+            style={styles.signUpButton}
+            textColor={theme.colors.primary}>
+            Não tem conta? Cadastre-se
           </Button>
         </Card.Content>
       </Card>
     </View>
   );
 }
+
 
 // Estilos locais (sem referência ao tema)
 const styles = StyleSheet.create({

@@ -1,27 +1,46 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Card, List, Text, FAB } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
+import { TextInput, Button, Card, List, Text, FAB, IconButton } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import theme from '../../theme';  // Caminho igual para todas as telas
+import { auth, db } from '../services/firebaseConfig';
+import { createComplaint, listenToComplaints } from '../services/databaseService';
+import { signOut } from 'firebase/auth';
+import theme from '../../theme';
 
-
-export default function TenantScreen() {
+export default function TenantScreen({ navigation }) {
   const [complaint, setComplaint] = useState('');
-  const [complaints, setComplaints] = useState([
-    { id: '1', text: 'Vazamento no corredor', status: 'Pendente', date: 'Hoje, 14:30' },
-    { id: '2', text: 'Lâmpada queimada', status: 'Resolvido', date: 'Ontem, 09:15' }
-  ]);
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    if (complaint.trim()) {
-      setComplaints([{
-        id: Date.now().toString(),
+  useEffect(() => {
+    const unsubscribe = listenToComplaints((data) => {
+      setComplaints(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!complaint.trim()) return;
+    
+    setLoading(true);
+    try {
+      await createComplaint({
         text: complaint,
-        status: 'Pendente',
-        date: 'Agora'
-      }, ...complaints]);
+        userId: auth.currentUser.uid,
+        date: new Date().toISOString(),
+        status: 'Pendente'
+      });
       setComplaint('');
+    } catch (error) {
+      Alert.alert("Erro", error.message);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    // Implemente a lógica de atualização se necessário
+    console.log('Atualizando...');
   };
 
   return (
@@ -46,10 +65,11 @@ export default function TenantScreen() {
             mode="contained"
             onPress={handleSubmit}
             style={styles.button}
-            disabled={!complaint.trim()}
+            disabled={!complaint.trim() || loading}
+            loading={loading}
             icon="send"
           >
-            Enviar
+            {loading ? 'Enviando...' : 'Enviar'}
           </Button>
         </Card.Content>
       </Card>
@@ -59,7 +79,7 @@ export default function TenantScreen() {
           <List.Item
             key={item.id}
             title={item.text}
-            description={item.date}
+            description={new Date(item.date).toLocaleString()}
             left={props => (
               <List.Icon
                 {...props}
@@ -83,7 +103,7 @@ export default function TenantScreen() {
       <FAB
         icon="refresh"
         style={styles.fab}
-        onPress={() => console.log('Atualizar')}
+        onPress={handleRefresh}
       />
     </View>
   );
@@ -93,7 +113,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
   },
   card: {
     marginBottom: 20,
@@ -139,4 +159,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: theme.colors.primary,
   },
+  logoutButton: {
+    marginTop: 20,
+    borderColor: theme.colors.error,
+  }
 });
