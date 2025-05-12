@@ -51,11 +51,41 @@ export default function AppNavigator() {
               title: '🏠 Área do Morador',
               headerRight: () => (
                 <IconButton
-                  icon="logout"
+                  icon="account-circle"
                   color="white"
-                  onPress={() => auth.signOut()}
+                  onPress={() => navigation.navigate('Profile')}
+                  style={{ marginRight: 8 }}
                 />
               ),
+              headerLeft: () => (
+                <IconButton
+                  icon="menu"
+                  color="white"
+                  onPress={() => {/* Menu ou outra ação */}}
+                />
+              ),
+            })}
+          />
+          <Stack.Screen
+            name="Admin"
+            component={AdminScreen}
+            options={({ navigation }) => ({
+              title: '📊 Painel Administrativo',
+              headerRight: () => (
+                <IconButton
+                  icon="account-circle"
+                  color="white"
+                  onPress={() => navigation.navigate('Profile')}
+                  style={{ marginRight: 8 }}
+                />
+              ),
+            })}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={({ navigation }) => ({
+              title: '👤 Meu Perfil',
               headerLeft: () => (
                 <IconButton
                   icon="arrow-left"
@@ -64,34 +94,6 @@ export default function AppNavigator() {
                 />
               ),
             })}
-          />
-          <Stack.Screen
-            name="Admin"
-            component={AdminScreen}
-            options={{
-              title: '📊 Painel Administrativo',
-              headerRight: () => (
-                <IconButton
-                  icon="logout"
-                  color="white"
-                  onPress={() => auth.signOut()}
-                />
-              ),
-            }}
-          />
-          <Stack.Screen
-            name="Profile"
-            component={ProfileScreen}
-            options={{
-              title: '👤 Meu Perfil',
-              headerRight: () => (
-                <IconButton
-                  icon="logout"
-                  color="white"
-                  onPress={() => auth.signOut()}
-                />
-              ),
-            }}
           />
         </>
       ) : (
@@ -107,7 +109,7 @@ export default function AppNavigator() {
           <Stack.Screen
             name="SignUp"
             component={SignUpScreen}
-            options={{
+            options={({ navigation }) => ({
               title: '📝 Cadastro',
               headerLeft: () => (
                 <IconButton
@@ -116,7 +118,7 @@ export default function AppNavigator() {
                   onPress={() => navigation.goBack()}
                 />
               ),
-            }}
+            })}
           />
         </>
       )}
