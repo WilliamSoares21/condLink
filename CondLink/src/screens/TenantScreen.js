@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { TextInput, Button, Card, List, Text, FAB, IconButton } from 'react-native-paper';
+import { TextInput, Button, Card, List, Text, FAB } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { auth, db } from '../services/firebaseConfig';
+import { auth } from '../services/firebaseConfig';
 import { createComplaint, listenToComplaints } from '../services/databaseService';
-import { signOut } from 'firebase/auth';
 import theme from '../../theme';
 
-export default function TenantScreen({ navigation }) {
+export default function TenantScreen() {
   const [complaint, setComplaint] = useState('');
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -21,7 +20,7 @@ export default function TenantScreen({ navigation }) {
 
   const handleSubmit = async () => {
     if (!complaint.trim()) return;
-    
+
     setLoading(true);
     try {
       await createComplaint({
@@ -39,7 +38,7 @@ export default function TenantScreen({ navigation }) {
   };
 
   const handleRefresh = () => {
-    // Implemente a lógica de atualização se necessário
+    // Lógica de atualização pode ser adicionada aqui
     console.log('Atualizando...');
   };
 
@@ -87,7 +86,7 @@ export default function TenantScreen({ navigation }) {
                 color={item.status === 'Pendente' ? theme.colors.secondary : theme.colors.primary}
               />
             )}
-            right={props => (
+            right={() => (
               <Text style={[
                 styles.status,
                 item.status === 'Pendente' ? styles.pending : styles.resolved
@@ -158,9 +157,5 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: theme.colors.primary,
-  },
-  logoutButton: {
-    marginTop: 20,
-    borderColor: theme.colors.error,
   }
 });

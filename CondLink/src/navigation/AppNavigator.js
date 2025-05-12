@@ -8,6 +8,8 @@ import LoginScreen from '../screens/LoginScreen';
 import TenantScreen from '../screens/TenantScreen';
 import AdminScreen from '../screens/AdminScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+
 
 const Stack = createStackNavigator();
 
@@ -48,15 +50,15 @@ export default function AppNavigator() {
             options={({ navigation }) => ({
               title: '🏠 Área do Morador',
               headerRight: () => (
-                <IconButton 
-                  icon="logout" 
+                <IconButton
+                  icon="logout"
                   color="white"
                   onPress={() => auth.signOut()}
                 />
               ),
               headerLeft: () => (
-                <IconButton 
-                  icon="arrow-left" 
+                <IconButton
+                  icon="arrow-left"
                   color="white"
                   onPress={() => navigation.goBack()}
                 />
@@ -66,11 +68,25 @@ export default function AppNavigator() {
           <Stack.Screen
             name="Admin"
             component={AdminScreen}
-            options={{ 
+            options={{
               title: '📊 Painel Administrativo',
               headerRight: () => (
-                <IconButton 
-                  icon="logout" 
+                <IconButton
+                  icon="logout"
+                  color="white"
+                  onPress={() => auth.signOut()}
+                />
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{
+              title: '👤 Meu Perfil',
+              headerRight: () => (
+                <IconButton
+                  icon="logout"
                   color="white"
                   onPress={() => auth.signOut()}
                 />
@@ -83,7 +99,7 @@ export default function AppNavigator() {
           <Stack.Screen
             name="Login"
             component={LoginScreen}
-            options={{ 
+            options={{
               title: '🔐 Acesso CondLink',
               headerLeft: null
             }}
@@ -91,11 +107,11 @@ export default function AppNavigator() {
           <Stack.Screen
             name="SignUp"
             component={SignUpScreen}
-            options={{ 
+            options={{
               title: '📝 Cadastro',
               headerLeft: () => (
-                <IconButton 
-                  icon="arrow-left" 
+                <IconButton
+                  icon="arrow-left"
                   color="white"
                   onPress={() => navigation.goBack()}
                 />
