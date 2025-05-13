@@ -3,7 +3,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Text, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { auth } from '../services/firebaseConfig.js';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { ref, get } from 'firebase/database';
 import { db } from '../services/firebaseConfig.js';
 import theme from '../../theme';
@@ -13,29 +13,153 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [secureText, setSecureText] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+
+  // Função para validar o formato do e-mail
+  const validateEmail = (email) => {
+    // Expressão regular para validar e-mails
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleLogin = async () => {
+    // Limpa possíveis espaços extras
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      Alert.alert('Atenção', 'Por favor, informe seu e-mail');
+      return;
+    }
+
+    if (!validateEmail(trimmedEmail)) {
+      Alert.alert('E-mail inválido', 'Por favor, insira um endereço de e-mail válido');
+      return;
+    }
+
+    if (!password.trim()) {
+      Alert.alert('Atenção', 'Por favor, informe sua senha');
+      return;
+    }
+
     try {
       setLoading(true);
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("Tentando login com:", trimmedEmail); // Log para depuração
+      
+      const userCredential = await signInWithEmailAndPassword(auth, trimmedEmail, password);
+      console.log("Login bem-sucedido:", userCredential.user.uid); // Log para depuração
       
       // Verificar se é admin
       const userRef = ref(db, `users/${userCredential.user.uid}`);
       const snapshot = await get(userRef);
       
       if (snapshot.exists()) {
-        navigation.navigate(snapshot.val().isAdmin ? 'Admin' : 'Tenant');
+        const userData = snapshot.val();
+        console.log("Dados do usuário:", userData); // Log para depuração
+        navigation.navigate(userData.isAdmin ? 'Admin' : 'Tenant');
       } else {
-        Alert.alert('Erro', 'Usuário não cadastrado');
+        console.log("Usuário autenticado, mas sem dados no banco"); // Log para depuração
+        Alert.alert('Erro', 'Usuário não cadastrado completamente');
         await auth.signOut();
       }
     } catch (error) {
-      Alert.alert('Erro', error.message);
+      console.error("Erro de login:", error.code, error.message);
+      
+      // Tratamento específico de erros
+      switch (error.code) {
+        case 'auth/invalid-login-credentials':
+        case 'auth/invalid-credential':
+          Alert.alert(
+            'Credenciais inválidas', 
+            'E-mail ou senha incorretos. Verifique suas informações e tente novamente.'
+          );
+          break;
+          
+        case 'auth/user-not-found':
+          Alert.alert(
+            'Usuário não encontrado', 
+            'Este e-mail não está cadastrado. Deseja criar uma conta?',
+            [
+              { text: 'Não' },
+              { text: 'Sim', onPress: () => navigation.navigate('SignUp') }
+            ]
+          );
+          break;
+        
+        case 'auth/wrong-password':
+          Alert.alert('Senha incorreta', 'Por favor, verifique sua senha e tente novamente.');
+          break;
+        
+        case 'auth/invalid-email':
+          Alert.alert('E-mail inválido', 'Por favor, informe um endereço de e-mail válido.');
+          break;
+          
+        case 'auth/too-many-requests':
+          Alert.alert('Muitas tentativas', 'Acesso temporariamente bloqueado devido a muitas tentativas sem sucesso. Tente novamente mais tarde ou redefina sua senha.');
+          break;
+          
+        case 'auth/network-request-failed':
+          Alert.alert('Erro de conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
+          break;
+        
+        default:
+          Alert.alert('Erro de autenticação', `Ocorreu um erro durante o login: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const handleForgotPassword = async () => {
+    // Limpa possíveis espaços extras
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      Alert.alert('Atenção', 'Por favor, informe seu e-mail para redefinir a senha');
+      return;
+    }
+
+    if (!validateEmail(trimmedEmail)) {
+      Alert.alert('E-mail inválido', 'Por favor, insira um endereço de e-mail válido');
+      return;
+    }
+
+    try {
+      setResetLoading(true);
+      console.log("Enviando e-mail de redefinição para:", trimmedEmail); // Log para depuração
+      
+      await sendPasswordResetEmail(auth, trimmedEmail);
+      
+      Alert.alert(
+        'E-mail enviado',
+        'Enviamos um link para redefinição de senha para o seu e-mail. Verifique sua caixa de entrada e a pasta de spam.'
+      );
+    } catch (error) {
+      console.error("Erro ao enviar e-mail de redefinição:", error.code, error.message);
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          Alert.alert('Usuário não encontrado', 'Não existe conta associada a este e-mail.');
+          break;
+          
+        case 'auth/invalid-email':
+          Alert.alert('E-mail inválido', 'Por favor, informe um endereço de e-mail válido.');
+          break;
+          
+        case 'auth/missing-android-pkg-name':
+        case 'auth/missing-continue-uri':
+        case 'auth/missing-ios-bundle-id':
+          Alert.alert('Erro de configuração', 'Há um problema na configuração do aplicativo. Entre em contato com o suporte.');
+          break;
+          
+        default:
+          Alert.alert('Erro', `Não foi possível enviar o e-mail de redefinição: ${error.message}`);
+      }
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  // Restante do código (return e styles) permanece igual
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Card style={styles.card}>
@@ -52,6 +176,8 @@ export default function LoginScreen({ navigation }) {
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
             theme={{ colors: { primary: theme.colors.primary } }}
           />
 
@@ -83,6 +209,16 @@ export default function LoginScreen({ navigation }) {
           </Button>
           
           <Button
+            mode="text"
+            onPress={handleForgotPassword}
+            loading={resetLoading}
+            disabled={resetLoading}
+            style={styles.forgotButton}
+            textColor={theme.colors.secondary}>
+            Esqueceu sua senha?
+          </Button>
+          
+          <Button
             onPress={() => navigation.navigate('SignUp')}
             mode="text"
             style={styles.signUpButton}
@@ -95,8 +231,6 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-
-// Estilos locais (sem referência ao tema)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -116,14 +250,15 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: 'white',
   },
-  switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 15,
-  },
   button: {
     marginTop: 10,
     paddingVertical: 5,
   },
+  forgotButton: {
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  signUpButton: {
+    marginTop: 5,
+  }
 });
