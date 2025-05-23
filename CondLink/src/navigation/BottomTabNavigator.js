@@ -11,7 +11,7 @@ import theme from '../../theme';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator({ route }) {
-  const { isAdmin } = route.params || {};
+  const { isAdmin, userData } = route.params || {};
   
   return (
     <Tab.Navigator
@@ -54,6 +54,7 @@ export default function BottomTabNavigator({ route }) {
       <Tab.Screen
         name="FutureTab"
         component={MoreScreen}
+        initialParams={{ userData }}  // Passar userData como parâmetro inicial
         options={{
           tabBarLabel: 'Em Breve',
           tabBarIcon: ({ color, size }) => (

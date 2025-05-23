@@ -3,7 +3,8 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Card, Text } from 'react-native-paper';
 import { auth, db } from '../services/firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { ref, set } from 'firebase/database';
+import { ref, set, get, query, orderByKey, equalTo } from 'firebase/database';
+import { hashCPF } from '../utils/securityUtils';
 import theme from '../../theme';
 
 export default function SignUpScreen({ navigation }) {
@@ -34,11 +35,42 @@ export default function SignUpScreen({ navigation }) {
     return true;
   };
 
+  // Nova função para validar se o CPF está autorizado
+  const validateAuthorizedResident = async (cpf) => {
+    try {
+      const hashedCPF = hashCPF(cpf);
+      const residentQuery = query(
+        ref(db, 'authorized_residents'),
+        orderByKey(),
+        equalTo(hashedCPF)
+      );
+      
+      const snapshot = await get(residentQuery);
+      return snapshot.exists();
+    } catch (error) {
+      console.error('Erro na validação do CPF:', error);
+      return false;
+    }
+  };
+
   const handleSignUp = async () => {
     if (!validateForm()) return;
 
     setLoading(true);
     try {
+      // Verificar se o CPF está autorizado
+      const isAuthorized = await validateAuthorizedResident(cpf);
+      
+      if (!isAuthorized) {
+        Alert.alert(
+          'Não Autorizado',
+          'CPF não encontrado na base de dados. Por gentileza, entre em contato com o síndico do seu condomínio.'
+        );
+        setLoading(false);
+        return;
+      }
+      
+      // Continuar com o cadastro se o CPF estiver autorizado
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await set(ref(db, `users/${userCredential.user.uid}`), {
         name,
@@ -52,21 +84,21 @@ export default function SignUpScreen({ navigation }) {
       Alert.alert('Sucesso', 'Cadastro realizado!');
       navigation.navigate('Login');
     } catch (error) {
-      let errorMessage = 'Erro ao cadastrar: ';
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          errorMessage += 'Este email já está cadastrado';
-          break;
-        case 'auth/invalid-email':
-          errorMessage += 'Email inválido';
-          break;
-        case 'auth/weak-password':
-          errorMessage += 'Senha muito fraca (mínimo 6 caracteres)';
-          break;
-        default:
-          errorMessage += error.message;
+      console.error('Erro na validação do CPF:', error);
+      
+      // Mostra uma mensagem específica para erro de permissão
+      if (error.message && error.message.includes('permission_denied')) {
+        Alert.alert(
+          'Acesso não autorizado',
+          'Por favor, entre em contato com o administrador do condomínio para verificar seu CPF.'
+        );
+      } else {
+        // Outras mensagens de erro (VVou tentar colocar mais depois)
+        Alert.alert('Erro', 'Não foi possível verificar seu CPF. Tente novamente mais tarde.');
       }
-      Alert.alert('Erro', errorMessage);
+      
+      setLoading(false);
+      return;
     } finally {
       setLoading(false);
     }

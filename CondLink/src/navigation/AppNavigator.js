@@ -11,6 +11,7 @@ import BottomTabNavigator from './BottomTabNavigator';
 import TenantScreen from '../screens/TenantScreen';
 import AdminScreen from '../screens/AdminScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import ManageResidentsScreen from '../screens/ManageResidentsScreen';
 
 const Stack = createStackNavigator();
 
@@ -64,7 +65,7 @@ export default function AppNavigator() {
             name="Main"
             component={BottomTabNavigator}
             options={{ headerShown: false }}
-            initialParams={{ isAdmin: userData?.isAdmin }}
+            initialParams={{ isAdmin: userData?.isAdmin, userData: userData }}
           />
           
           {/* Manter as rotas individuais para navegação de dentro da Tab */}
@@ -95,6 +96,13 @@ export default function AppNavigator() {
             component={ProfileScreen}
             options={{
               title: 'Meu Perfil',
+            }}
+          />
+          <Stack.Screen
+            name="ManageResidents"
+            component={ManageResidentsScreen}
+            options={{
+              title: 'Gerenciar Moradores',
             }}
           />
         </>

@@ -5,7 +5,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import theme from '../../theme';
 import CustomHeader from '../components/CustomHeader';
 
-export default function MoreScreen({ navigation }) {
+export default function MoreScreen({ navigation, route }) {
+  const { userData } = route.params || {};
+  
+  console.log("MoreScreen userData:", userData); // Para diagnóstico
+
   const menuItems = [
     { 
       title: 'Documentos', 
@@ -37,6 +41,13 @@ export default function MoreScreen({ navigation }) {
       description: 'Informações sobre o aplicativo',
       action: () => alert('CondLink v1.0.0\nDesenvolvido para melhorar a comunicação em seu condomínio'),
     },
+    { 
+      title: 'Gerenciar Moradores', 
+      icon: 'account-multiple-check',
+      description: 'Adicionar ou remover moradores autorizados',
+      action: () => navigation.navigate('ManageResidents'),
+      adminOnly: true,
+    },
   ];
 
   return (
@@ -49,30 +60,32 @@ export default function MoreScreen({ navigation }) {
           Acesse outros recursos do CondLink
         </Text>
 
-        {menuItems.map((item, index) => (
-          <React.Fragment key={index}>
-            <List.Item
-              title={item.title}
-              description={item.description}
-              left={props => (
-                <List.Icon
-                  {...props}
-                  icon={({ size, color }) => (
-                    <MaterialCommunityIcons
-                      name={item.icon}
-                      size={size}
-                      color={theme.colors.primary}
-                    />
-                  )}
-                />
-              )}
-              right={props => <List.Icon {...props} icon="chevron-right" />}
-              onPress={item.action}
-              style={styles.listItem}
-            />
-            <Divider />
-          </React.Fragment>
-        ))}
+        {menuItems
+          .filter(item => !item.adminOnly || userData?.isAdmin)
+          .map((item, index) => (
+            <React.Fragment key={index}>
+              <List.Item
+                title={item.title}
+                description={item.description}
+                left={props => (
+                  <List.Icon
+                    {...props}
+                    icon={({ size, color }) => (
+                      <MaterialCommunityIcons
+                        name={item.icon}
+                        size={size}
+                        color={theme.colors.primary}
+                      />
+                    )}
+                  />
+                )}
+                right={props => <List.Icon {...props} icon="chevron-right" />}
+                onPress={item.action}
+                style={styles.listItem}
+              />
+              <Divider />
+            </React.Fragment>
+          ))}
       </ScrollView>
     </View>
   );
