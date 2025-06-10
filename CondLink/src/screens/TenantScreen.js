@@ -38,7 +38,7 @@ export default function TenantScreen() {
   };
 
   const handleRefresh = () => {
-    // Lógica de atualização pode ser adicionada aqui
+
     console.log('Atualizando...');
   };
 
