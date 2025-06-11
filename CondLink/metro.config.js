@@ -1,9 +1,14 @@
 const { getDefaultConfig } = require('expo/metro-config');
+const path = require('path');
 
 const config = getDefaultConfig(__dirname);
 
-// Otimizações para evitar problemas de bundle
-config.resolver.sourceExts = ['jsx', 'js', 'ts', 'tsx', 'json'];
-config.transformer.minifierPath = 'metro-minify-terser';
-
-module.exports = config;
+module.exports = {
+  ...config,
+  resolver: {
+    ...config.resolver,
+    extraNodeModules: {
+      'idb': path.resolve(__dirname, './empty.js')
+    }
+  }
+};
