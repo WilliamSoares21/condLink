@@ -8,7 +8,10 @@ import CustomHeader from '../components/CustomHeader';
 export default function MoreScreen({ navigation, route }) {
   const { userData } = route.params || {};
   
-  console.log("MoreScreen userData:", userData); // Para diagnóstico
+  // Verificação mais robusta
+  const isAdmin = userData && userData.isAdmin === true;
+  
+  console.log("MoreScreen userData:", userData, "isAdmin:", isAdmin);
 
   const menuItems = [
     { 
@@ -61,7 +64,7 @@ export default function MoreScreen({ navigation, route }) {
         </Text>
 
         {menuItems
-          .filter(item => !item.adminOnly || userData?.isAdmin)
+          .filter(item => !item.adminOnly || isAdmin) // Use a nova variável isAdmin
           .map((item, index) => (
             <React.Fragment key={index}>
               <List.Item

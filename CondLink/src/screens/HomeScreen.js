@@ -121,7 +121,7 @@ export default function HomeScreen({ navigation }) {
         <TouchableOpacity 
           style={styles.gridItem} 
           activeOpacity={0.7}
-          onPress={() => navigation.navigate('More')}
+          onPress={() => navigation.navigate('FutureTab')}
         >
           <Surface style={styles.surface}>
             <MaterialCommunityIcons name="dots-horizontal-circle" size={40} color={theme.colors.primary} />

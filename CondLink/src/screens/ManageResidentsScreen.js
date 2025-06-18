@@ -2,21 +2,50 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { TextInput, Button, Card, DataTable, Text } from 'react-native-paper';
 import { ref, set, get, remove } from 'firebase/database';
-import { db } from '../services/firebaseConfig';
+import { db, auth } from '../services/firebaseConfig';
 import { hashCPF } from '../utils/securityUtils';
 import theme from '../../theme';
 
-export default function ManageResidentsScreen() {
+export default function ManageResidentsScreen({ navigation }) {
   const [cpf, setCpf] = useState('');
   const [name, setName] = useState('');
   const [block, setBlock] = useState('');
   const [apartment, setApartment] = useState('');
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingPermission, setCheckingPermission] = useState(true);
 
   useEffect(() => {
-    loadResidents();
-  }, []);
+    // Verificar se o usuário é administrador
+    const checkAdminStatus = async () => {
+      setCheckingPermission(true);
+      try {
+        const userSnapshot = await get(ref(db, `users/${auth.currentUser.uid}`));
+        const userData = userSnapshot.val();
+        
+        if (!userData || userData.isAdmin !== true) {
+          // Redirecionar usuário não administrador
+          Alert.alert(
+            "Acesso negado",
+            "Você não tem permissão para acessar esta área."
+          );
+          navigation.goBack();
+          return;
+        }
+        
+        setIsAdmin(true);
+        loadResidents();
+      } catch (error) {
+        console.error('Erro ao verificar permissões:', error);
+        navigation.goBack();
+      } finally {
+        setCheckingPermission(false);
+      }
+    };
+    
+    checkAdminStatus();
+  }, [navigation]);
 
   const loadResidents = async () => {
     try {
@@ -77,6 +106,18 @@ export default function ManageResidentsScreen() {
       Alert.alert('Erro', 'Falha ao remover morador');
     }
   };
+
+  if (checkingPermission) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <Text>Verificando permissões...</Text>
+      </View>
+    );
+  }
+
+  if (!isAdmin) {
+    return null; // Não renderiza nada, pois o usuário será redirecionado
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -180,5 +221,9 @@ const styles = StyleSheet.create({
   table: {
     backgroundColor: 'white',
     borderRadius: 10,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

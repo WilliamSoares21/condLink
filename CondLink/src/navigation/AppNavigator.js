@@ -65,10 +65,10 @@ export default function AppNavigator() {
             name="Main"
             component={BottomTabNavigator}
             options={{ headerShown: false }}
-            initialParams={{ isAdmin: userData?.isAdmin, userData: userData }}
+            initialParams={{ isAdmin: userData?.isAdmin === true, userData: userData }}
           />
           
-          {/* Manter as rotas individuais para navegação de dentro da Tab */}
+          {/* Rotas comuns */}
           <Stack.Screen
             name="Tenant"
             component={TenantScreen}
@@ -85,17 +85,19 @@ export default function AppNavigator() {
             })}
           />
           <Stack.Screen
-            name="Admin"
-            component={AdminScreen}
-            options={{
-              title: 'Gerenciar Reclamações',
-            }}
-          />
-          <Stack.Screen
             name="Profile"
             component={ProfileScreen}
             options={{
               title: 'Meu Perfil',
+            }}
+          />
+          
+          {/* Rotas que exigem privilégios de administrador */}
+          <Stack.Screen
+            name="Admin"
+            component={AdminScreen}
+            options={{
+              title: 'Gerenciar Reclamações',
             }}
           />
           <Stack.Screen
