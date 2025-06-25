@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { listenToComplaints, updateComplaintStatus } from '../services/databaseService';
 import theme from '../../theme';
 
-export default function AdminScreen() {
+export default function AdminScreen({ navigation }) {
   const [filter, setFilter] = useState('all');
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -419,5 +419,5 @@ const styles = StyleSheet.create({
   },
   dialogInput: {
     backgroundColor: 'white',
-  }
+  },
 });

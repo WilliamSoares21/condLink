@@ -21,7 +21,6 @@ export const createComplaint = async (complaint) => {
   const currentUser = auth.currentUser;
   if (!currentUser) throw new Error("Usuário não autenticado");
   
-  // Obter dados do usuário para incluir na reclamação
   try {
     const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
     const userData = userSnapshot.val();
@@ -44,7 +43,6 @@ export const createComplaint = async (complaint) => {
 };
 
 export const updateComplaintStatus = async (id, newStatus, notes = null) => {
-  // Verificar se o usuário é administrador
   const admin = await isCurrentUserAdmin();
   if (!admin) {
     throw new Error("Permissão negada: Apenas administradores podem atualizar status de reclamações");
@@ -55,7 +53,6 @@ export const updateComplaintStatus = async (id, newStatus, notes = null) => {
     lastUpdated: Date.now()
   };
   
-  // Adicionar notas se fornecidas
   if (notes !== null) {
     updateData.notes = notes;
   }
@@ -64,7 +61,6 @@ export const updateComplaintStatus = async (id, newStatus, notes = null) => {
 };
 
 export const deleteComplaint = async (id) => {
-  // Obter a reclamação primeiro para verificar propriedade ou status de admin
   const snapshot = await get(ref(db, `complaints/${id}`));
   if (!snapshot.exists()) throw new Error("Reclamação não encontrada");
   
@@ -72,7 +68,6 @@ export const deleteComplaint = async (id) => {
   const currentUser = auth.currentUser;
   if (!currentUser) throw new Error("Usuário não autenticado");
   
-  // Verificar se o usuário é o proprietário ou administrador
   const isOwner = complaint.userId === currentUser.uid;
   const isAdmin = await isCurrentUserAdmin();
   
@@ -85,25 +80,48 @@ export const deleteComplaint = async (id) => {
 
 export const listenToComplaints = (callback) => {
   const complaintsRef = ref(db, 'complaints');
-  return onValue(complaintsRef, (snapshot) => {
-    const data = snapshot.val();
-    const complaintsList = data 
-      ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
-      : [];
-    callback(complaintsList);
-  });
+  
+  return onValue(complaintsRef, 
+    (snapshot) => {
+      try {
+        const data = snapshot.val();
+        const complaintsList = data 
+          ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
+          : [];
+        callback(complaintsList);
+      } catch (error) {
+        console.error("Erro no listener de reclamações:", error);
+        callback([]);
+      }
+    },
+    (error) => {
+      console.error("Erro no listener:", error);
+      callback([]);
+    }
+  );
 };
 
-// Para ouvir apenas as reclamações de um usuário específico
 export const listenToUserComplaints = (userId, callback) => {
   const complaintsRef = ref(db, 'complaints');
-  return onValue(complaintsRef, (snapshot) => {
-    const data = snapshot.val();
-    const complaintsList = data 
-      ? Object.entries(data)
-        .map(([id, value]) => ({ id, ...value }))
-        .filter(complaint => complaint.userId === userId)
-      : [];
-    callback(complaintsList);
-  });
+  
+  return onValue(complaintsRef, 
+    (snapshot) => {
+      try {
+        const data = snapshot.val();
+        const complaintsList = data 
+          ? Object.entries(data)
+            .map(([id, value]) => ({ id, ...value }))
+            .filter(complaint => complaint.userId === userId)
+          : [];
+        callback(complaintsList);
+      } catch (error) {
+        console.error("Erro no listener de reclamações do usuário:", error);
+        callback([]);
+      }
+    },
+    (error) => {
+      console.error("Erro no listener:", error);
+      callback([]);
+    }
+  );
 };

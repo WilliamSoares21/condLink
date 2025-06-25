@@ -44,17 +44,35 @@ export default function BottomTabNavigator({ route }) {
         name="ComplaintsTab"
         component={isAdmin ? AdminScreen : TenantScreen}
         options={{
-          tabBarLabel: 'Reclamações',
+          tabBarLabel: isAdmin ? 'Gerenciar' : 'Reclamações',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="comment-alert" size={size} color={color} />
+            <MaterialCommunityIcons 
+              name={isAdmin ? "shield-check" : "comment-alert"} 
+              size={size} 
+              color={color} 
+            />
           ),
         }}
       />
+
+      {/* Adicionar tab específica para criar reclamações (apenas para admin) */}
+      {isAdmin && (
+        <Tab.Screen
+          name="CreateComplaintTab"
+          component={TenantScreen}
+          options={{
+            tabBarLabel: 'Criar',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="plus-circle" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
       
       <Tab.Screen
         name="FutureTab"
         component={MoreScreen}
-        initialParams={{ userData }}  // Passar userData como parâmetro inicial
+        initialParams={{ userData: userData }}
         options={{
           tabBarLabel: 'Em Breve',
           tabBarIcon: ({ color, size }) => (

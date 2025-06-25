@@ -9,6 +9,16 @@ module.exports = {
     ...config.resolver,
     extraNodeModules: {
       'idb': path.resolve(__dirname, './empty.js')
+    },
+    platforms: ['ios', 'android', 'native', 'web']
+  },
+  transformer: {
+    ...config.transformer,
+    minifierConfig: {
+      keep_fnames: true,
+      mangle: {
+        keep_fnames: true
+      }
     }
   }
 };
